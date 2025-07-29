@@ -1,29 +1,138 @@
-# calc.sh - A Simple Command Line Calculator
+# CRUD Backend Server
 
-This project provides a simple command line calculator implemented in a shell script. The calculator supports basic arithmetic operations including addition, subtraction, multiplication, and division.
+A simple and efficient CRUD (Create, Read, Update, Delete) backend server built with Express.js and JSON file storage.
 
-## Features
+## 🚀 Features
 
-- Addition
-- Subtraction
-- Multiplication
-- Division
+- **Complete CRUD Operations**: Create, read, update, and delete items
+- **RESTful API**: Clean and intuitive REST endpoints
+- **Input Validation**: Comprehensive validation using express-validator
+- **Filtering & Search**: Filter by status/priority, search in title/description
+- **Pagination**: Efficient pagination for large datasets
+- **JSON File Storage**: Lightweight persistence without external dependencies
+- **Error Handling**: Unified error response format
+- **Security**: CORS and security headers with Helmet
+- **Testing**: Comprehensive test suite with Jest + Supertest
+- **Auto-reload**: Development mode with nodemon
 
-## Usage
+## 📋 Data Model
 
-To use the calculator, run the following command in your terminal:
+Items have the following structure:
+- **id**: UUID v4 identifier
+- **title**: Required string (1-100 characters)
+- **description**: Optional string (max 500 characters)
+- **status**: active | inactive | archived (default: active)
+- **priority**: low | medium | high (default: medium)
+- **tags**: Array of strings (optional)
+- **createdAt/updatedAt**: ISO 8601 timestamps
 
+## 🛣️ API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/items` | Get all items (with filtering/pagination) |
+| GET | `/api/items/:id` | Get specific item |
+| POST | `/api/items` | Create new item |
+| PUT | `/api/items/:id` | Update existing item |
+| DELETE | `/api/items/:id` | Delete item |
+
+## 🏃‍♂️ Quick Start
+
+### Installation
 ```bash
-bash src/calc.sh
+npm install
 ```
 
-Follow the prompts to enter your calculations.
+### Development
+```bash
+npm run dev    # Start with auto-reload
+```
 
-## Prerequisites
+### Production
+```bash
+npm start      # Start server
+```
 
-- A Unix-like environment (Linux, macOS, or WSL on Windows)
-- Bash shell
+### Testing
+```bash
+npm test              # Run all tests
+npm run test:watch    # Watch mode
+```
 
-## License
+## 📖 API Documentation
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for detailed API documentation with examples.
+
+## 🏗️ Project Structure
+
+```
+├── src/
+│   ├── controllers/     # Request handlers
+│   ├── models/          # Data models
+│   ├── routes/          # Route definitions
+│   ├── middleware/      # Custom middleware
+│   ├── utils/           # Utility functions
+│   └── server.js        # Main server file
+├── data/
+│   └── items.json       # JSON data storage
+├── tests/
+│   └── items.test.js    # Test suite
+└── API_DOCUMENTATION.md # Detailed API docs
+```
+
+## 🧪 Example Usage
+
+### Create an item
+```bash
+curl -X POST http://localhost:3000/api/items \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My Task",
+    "description": "Important task to complete",
+    "priority": "high",
+    "tags": ["work", "urgent"]
+  }'
+```
+
+### Get items with filtering
+```bash
+curl "http://localhost:3000/api/items?status=active&priority=high&page=1&limit=5"
+```
+
+### Update an item
+```bash
+curl -X PUT http://localhost:3000/api/items/item-id \
+  -H "Content-Type: application/json" \
+  -d '{"status": "completed"}'
+```
+
+## 🔒 Security Features
+
+- CORS configuration
+- Security headers via Helmet
+- Input validation and sanitization
+- Error handling without data leaks
+
+## 📊 Testing
+
+The project includes comprehensive tests covering:
+- All CRUD operations
+- Input validation
+- Error handling
+- Pagination and filtering
+- Search functionality
+
+Run tests with: `npm test`
+
+## 🤝 Development
+
+The server includes:
+- Hot reloading with nodemon
+- Comprehensive logging
+- Graceful shutdown handling
+- Environment-based configuration
+
+## 📝 License
+
+This project is licensed under the ISC License.
