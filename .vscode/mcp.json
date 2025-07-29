@@ -1,0 +1,16 @@
+{
+    "allowRemoteMCP": true,
+    "auth": {
+        "type": "PAT",
+        "token": "YOUR_PERSONAL_ACCESS_TOKEN_OR_OAUTH_CLIENT_ID"
+    },
+    "mcpServer": {
+        "url": "https://github.com/github/github-mcp-server"
+    },
+    "servers": {
+        "github": {
+            "type": "http",
+            "url": "https://api.githubcopilot.com/mcp/"
+        }
+    }
+}
