@@ -12,5 +12,22 @@
             "type": "http",
             "url": "https://api.githubcopilot.com/mcp/"
         }
+    },
+    "projectManagement": {
+        "enabled": true,
+        "projectUrl": "https://github.com/users/R-matsuoooo/projects/1",
+        "autoAssignIssues": true,
+        "autoAddToProject": true,
+        "statusMapping": {
+            "todo": "Todo",
+            "in_progress": "In Progress",
+            "done": "Done"
+        }
+    },
+    "automation": {
+        "issueTemplates": true,
+        "prTemplates": true,
+        "autoLabeling": true,
+        "progressTracking": true
     }
 }
