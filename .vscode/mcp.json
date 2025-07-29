@@ -1,16 +1,79 @@
 {
     "allowRemoteMCP": true,
     "auth": {
-        "type": "PAT",
-        "token": "YOUR_PERSONAL_ACCESS_TOKEN_OR_OAUTH_CLIENT_ID"
+        "type": "${MCP_AUTH_TYPE:-PAT}",
+        "token": "${MCP_AUTH_TOKEN:-YOUR_PERSONAL_ACCESS_TOKEN_OR_OAUTH_CLIENT_ID}",
+        "oauth2": {
+            "clientId": "${MCP_OAUTH_CLIENT_ID}",
+            "clientSecret": "${MCP_OAUTH_CLIENT_SECRET}",
+            "redirectUri": "${MCP_OAUTH_REDIRECT_URI:-http://localhost:3000/callback}",
+            "scope": "${MCP_OAUTH_SCOPE:-repo,user}",
+            "authorizationUrl": "https://github.com/login/oauth/authorize",
+            "tokenUrl": "https://github.com/login/oauth/access_token"
+        },
+        "encryption": {
+            "enabled": "${MCP_TOKEN_ENCRYPTION:-true}",
+            "algorithm": "AES-256-GCM"
+        }
     },
     "mcpServer": {
-        "url": "https://github.com/github/github-mcp-server"
+        "url": "https://github.com/github/github-mcp-server",
+        "timeout": "${MCP_SERVER_TIMEOUT:-30000}",
+        "retryAttempts": "${MCP_RETRY_ATTEMPTS:-3}",
+        "retryDelay": "${MCP_RETRY_DELAY:-1000}",
+        "logLevel": "${MCP_LOG_LEVEL:-info}"
     },
     "servers": {
         "github": {
             "type": "http",
-            "url": "https://api.githubcopilot.com/mcp/"
+            "url": "https://api.githubcopilot.com/mcp/",
+            "timeout": "${MCP_GITHUB_TIMEOUT:-15000}",
+            "headers": {
+                "User-Agent": "work-copilot-mcp/1.0",
+                "Accept": "application/vnd.github.v3+json"
+            },
+            "rateLimit": {
+                "enabled": true,
+                "maxRequests": 5000,
+                "windowMs": 3600000
+            },
+            "permissions": {
+                "allowedScopes": ["repo:read", "user:read", "issues:write"],
+                "restrictedEndpoints": ["/admin", "/enterprise"],
+                "requireAuth": true
+            }
+        }
+    },
+    "logging": {
+        "level": "${MCP_LOG_LEVEL:-info}",
+        "file": "${MCP_LOG_FILE:-./logs/mcp.log}",
+        "maxSize": "10MB",
+        "maxFiles": 5,
+        "datePattern": "YYYY-MM-DD"
+    },
+    "security": {
+        "tokenStorage": {
+            "type": "encrypted",
+            "keyDerivation": "PBKDF2",
+            "iterations": 100000
+        },
+        "allowedHosts": [
+            "github.com",
+            "api.github.com",
+            "api.githubcopilot.com"
+        ],
+        "sslVerification": true,
+        "certificatePinning": {
+            "enabled": false,
+            "pins": []
+        }
+    },
+    "development": {
+        "debugMode": "${MCP_DEBUG_MODE:-false}",
+        "verboseLogging": "${MCP_VERBOSE_LOGGING:-false}",
+        "mockServer": {
+            "enabled": "${MCP_MOCK_ENABLED:-false}",
+            "port": "${MCP_MOCK_PORT:-3001}"
         }
     }
 }
