@@ -1,16 +1,160 @@
 {
     "allowRemoteMCP": true,
     "auth": {
-        "type": "PAT",
-        "token": "YOUR_PERSONAL_ACCESS_TOKEN_OR_OAUTH_CLIENT_ID"
+        "type": "OAuth2",
+        "oauth2": {
+            "clientId": "${MCP_OAUTH_CLIENT_ID}",
+            "clientSecret": "${MCP_OAUTH_CLIENT_SECRET}",
+            "authUrl": "https://github.com/login/oauth/authorize",
+            "tokenUrl": "https://github.com/login/oauth/access_token",
+            "scope": "read:user repo",
+            "redirectUri": "http://localhost:8080/callback",
+            "refreshTokenUrl": "https://github.com/login/oauth/access_token",
+            "useRefreshToken": true
+        },
+        "pat": {
+            "token": "${MCP_PERSONAL_ACCESS_TOKEN}",
+            "type": "PAT"
+        },
+        "encryption": {
+            "enabled": true,
+            "algorithm": "AES-256-GCM",
+            "keyDerivation": "PBKDF2",
+            "iterations": 100000
+        },
+        "tokenStorage": {
+            "location": "environment",
+            "encryptInMemory": true,
+            "autoRefresh": true,
+            "expiryWarning": 300
+        }
     },
     "mcpServer": {
-        "url": "https://github.com/github/github-mcp-server"
+        "url": "https://github.com/github/github-mcp-server",
+        "timeout": {
+            "connect": 30000,
+            "request": 60000,
+            "idle": 300000
+        },
+        "retry": {
+            "enabled": true,
+            "maxAttempts": 3,
+            "backoffStrategy": "exponential",
+            "baseDelay": 1000,
+            "maxDelay": 10000,
+            "retryableErrors": ["TIMEOUT", "CONNECTION_ERROR", "SERVER_ERROR"]
+        },
+        "healthCheck": {
+            "enabled": true,
+            "interval": 30000,
+            "endpoint": "/health"
+        }
     },
     "servers": {
         "github": {
             "type": "http",
-            "url": "https://api.githubcopilot.com/mcp/"
+            "url": "https://api.githubcopilot.com/mcp/",
+            "timeout": {
+                "connect": 15000,
+                "request": 45000,
+                "idle": 120000
+            },
+            "retry": {
+                "enabled": true,
+                "maxAttempts": 2,
+                "backoffStrategy": "linear",
+                "baseDelay": 500,
+                "maxDelay": 5000
+            },
+            "rateLimit": {
+                "enabled": true,
+                "requestsPerSecond": 10,
+                "burstSize": 20
+            }
+        },
+        "local": {
+            "type": "stdio",
+            "command": "node",
+            "args": ["./src/mcp-server.js"],
+            "env": {
+                "NODE_ENV": "production",
+                "LOG_LEVEL": "${MCP_LOG_LEVEL:-info}"
+            },
+            "timeout": {
+                "startup": 10000,
+                "shutdown": 5000
+            }
         }
+    },
+    "security": {
+        "permissions": {
+            "allowedDomains": [
+                "github.com",
+                "api.github.com",
+                "api.githubcopilot.com"
+            ],
+            "blockedDomains": [],
+            "allowedPorts": [80, 443, 8080],
+            "maxConnections": 10,
+            "requireHttps": true
+        },
+        "validation": {
+            "validateCertificates": true,
+            "allowSelfSigned": false,
+            "pinCertificates": false
+        },
+        "headers": {
+            "userAgent": "MCP-Client/1.0",
+            "customHeaders": {
+                "X-MCP-Version": "1.0.0",
+                "X-Client-Name": "work-copilot-mcp"
+            }
+        }
+    },
+    "logging": {
+        "level": "${MCP_LOG_LEVEL:-info}",
+        "format": "json",
+        "outputs": [
+            {
+                "type": "console",
+                "level": "info"
+            },
+            {
+                "type": "file",
+                "level": "debug",
+                "filename": "./logs/mcp-client.log",
+                "maxSize": "10MB",
+                "maxFiles": 5,
+                "compress": true
+            }
+        ],
+        "categories": {
+            "auth": "debug",
+            "network": "info",
+            "security": "warn",
+            "performance": "info"
+        }
+    },
+    "monitoring": {
+        "enabled": true,
+        "metrics": {
+            "collectRequestMetrics": true,
+            "collectPerformanceMetrics": true,
+            "collectErrorMetrics": true
+        },
+        "alerts": {
+            "enabled": true,
+            "thresholds": {
+                "errorRate": 0.05,
+                "responseTime": 5000,
+                "connectionFailures": 3
+            }
+        }
+    },
+    "development": {
+        "debug": "${MCP_DEBUG:-false}",
+        "verbose": "${MCP_VERBOSE:-false}",
+        "mockResponses": false,
+        "bypassSecurity": false
     }
 }
